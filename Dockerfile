@@ -6,16 +6,16 @@ WORKDIR /usr/src/ahlan-commerce
 # Install dependencies needed for compiling certain Rust crates (like OpenSSL and Postgres drivers)
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
 
-# Limit parallel compile jobs to avoid OOM on small servers.
-# 2 jobs keeps peak RAM around 3-4 GB. Disable incremental to save disk I/O.
-ENV CARGO_BUILD_JOBS=2
+# Limit compile jobs to avoid OOM on small VPS builders.
+ENV CARGO_BUILD_JOBS=1
 ENV CARGO_INCREMENTAL=0
+ENV CARGO_PROFILE_RELEASE_DEBUG=0
 
 # Copy all the source code
 COPY . .
 
-# Build both API and Worker binaries in release mode
-RUN cargo build --release -p api -p worker
+# Build only the API image binaries.
+RUN cargo build --release -p api --bin api --bin refinery-migrate
 
 FROM debian:bookworm-slim AS runtime
 
@@ -26,7 +26,6 @@ WORKDIR /app
 # Copy the built binaries from the builder stage
 COPY --from=builder /usr/src/ahlan-commerce/target/release/api /usr/local/bin/api
 COPY --from=builder /usr/src/ahlan-commerce/target/release/refinery-migrate /usr/local/bin/refinery-migrate
-COPY --from=builder /usr/src/ahlan-commerce/target/release/worker /usr/local/bin/worker
 
 # Expose the API port assuming the standard 3000
 EXPOSE 3000

@@ -1,0 +1,12 @@
+.git
+.github
+.DS_Store
+.env
+.env.*
+!.env.example
+target
+apps/admin/node_modules
+apps/admin/dist
+apps/admin/.tanstack
+.tools
+notes.*

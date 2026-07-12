@@ -1,0 +1,5 @@
+[queries]
+paths = ["db/queries"]
+
+[output]
+file = "src/generated/db.rs"

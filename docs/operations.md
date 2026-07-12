@@ -9,11 +9,18 @@ This manual explains how to perform regular operational tasks on the Ahlan Comme
 1. Make changes to the `atlas.hcl` schema file or raw SQL definitions.
 2. Generate a new migration using Atlas.
 3. Review the generated SQL in `db/migrations`.
-4. Apply using `make db-migrate`.
+4. Sync the reviewed SQL into Refinery format with `make refinery-sync`.
+5. Apply locally using `make db-migrate`.
 
 ### Applying Production Migrations
 
-Production uses Refinery from Rust, not Atlas. Keep `db/refinery_migrations/` aligned with reviewed schema changes, then run:
+Production uses Refinery from Rust, not Atlas. Keep `db/refinery_migrations/` aligned with reviewed schema changes by running:
+
+```sh
+make refinery-sync
+```
+
+Then either start the API, which applies pending Refinery migrations automatically, or run the standalone migration command:
 
 ```sh
 make db-migrate-prod

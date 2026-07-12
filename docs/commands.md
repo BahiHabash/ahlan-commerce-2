@@ -13,7 +13,9 @@ The repository uses `make` to automate common development workflows. Below is a 
 - `make db-start`: Ensures the local PostgreSQL server is running.
 - `make db-create`: Creates the `ahlan_commerce` database if it doesn't already exist.
 - `make db-check`: Runs `db-start` and `db-create` sequentially.
-- `make db-migrate`: Applies Atlas database migrations.
+- `make db-migrate`: Applies Atlas database migrations locally.
+- `make refinery-sync`: Creates missing Refinery migration files from reviewed Atlas migrations.
+- `make db-migrate-prod`: Runs the standalone Refinery migration binary.
 - `make cornucopia-generate`: Generates type-safe Rust code from SQL queries in `db/queries`.
 
 ## Testing & Checks

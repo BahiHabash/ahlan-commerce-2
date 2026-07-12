@@ -15,4 +15,5 @@ atlas.exe
 Thumbs.db
 desktop.ini
 .DS_Store
+dump.rdb
 *.log

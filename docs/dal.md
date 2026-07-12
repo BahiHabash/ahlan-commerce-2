@@ -26,6 +26,7 @@ Run Atlas when you need to change the structure of the database itself (e.g., ad
 Run Refinery in production or deployment automation after the migration SQL has been reviewed:
 
 ```sh
+make refinery-sync
 make db-migrate-prod
 ```
 

@@ -17,8 +17,9 @@ PG_ISREADY ?= pg_isready
 PG_CTL ?= pg_ctl
 PG_SERVICE ?= postgresql-x64-16
 PGDATA ?= E:/Set_up_Porgrams/PostgreSql/data
+PYTHON ?= python3
 
-.PHONY: start stop run-api run-admin test db-start db-create db-check db-migrate health cornucopia-generate redis-health docs-api docs-api-check
+.PHONY: start stop run-api run-admin test db-start db-create db-check db-migrate db-migrate-prod refinery-sync health cornucopia-generate redis-health docs-api docs-api-check
 
 start:
 	mprocs -c mprocs.yaml
@@ -27,7 +28,7 @@ stop:
 	@echo "Using local PostgreSQL. Stop it with your local PostgreSQL service manager if needed."
 
 run-api:
-	cargo run -p api
+	cargo run -p api --bin api
 
 run-admin:
 	cd apps/admin && npm run dev
@@ -71,6 +72,9 @@ db-migrate:
 
 db-migrate-prod:
 	DATABASE_URL="$(DATABASE_URL)" API_BIND_ADDR=0.0.0.0:3000 REDIS_URL=redis://localhost:6379 cargo run -p api --bin refinery-migrate
+
+refinery-sync:
+	$(PYTHON) scripts/sync_refinery_migrations.py
 
 health:
 	curl -f http://localhost:3000/health

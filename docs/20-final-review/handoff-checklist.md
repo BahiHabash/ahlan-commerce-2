@@ -1,0 +1,31 @@
+# Chapter 20 Handoff Checklist
+
+- public GitHub repo URL
+- public app URL
+- CI status link
+- PRD
+- ADR
+- `plan.md`
+- `tasks.md`
+- scenario specs
+- unit test evidence
+- integration test evidence
+- end-to-end test evidence
+- automation blocker and manual browser evidence, only if e2e is blocked
+- generated API docs
+- written setup docs
+- Chapter 03A error-handling implementation
+- Chapter 03A error-handling tests
+- Chapter 03A `docs/logs/root-cause-error.log`
+- Chapter 03B tracing implementation
+- Chapter 03B `docs/logs/success-request.log`
+- Chapter 03B `docs/logs/failed-request.log`
+- ID/time contract
+- architecture notes
+- compatibility adapter ADR and fixture tests
+- deployment preparation notes
+- Docker/runtime contract
+- deployment notes
+- CI contract
+- guard-skills findings and dispositions
+- final handoff summary

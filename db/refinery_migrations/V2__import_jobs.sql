@@ -1,4 +1,4 @@
-CREATE TABLE import_jobs (
+CREATE TABLE IF NOT EXISTS import_jobs (
   id UUID PRIMARY KEY,
   status TEXT NOT NULL CHECK (status IN ('queued', 'running', 'succeeded', 'failed')),
   input_path TEXT NOT NULL,

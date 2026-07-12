@@ -44,7 +44,6 @@ The following environment variables must be configured in your Coolify instances
 - `DATABASE_URL`: Full PostgreSQL connection string (provided by Coolify DB service).
 - `REDIS_URL`: Full Redis connection string (provided by Coolify Redis service).
 - `API_BIND_ADDR`: `0.0.0.0:3000`
-- `RUN_REFINERY_MIGRATIONS`: `true` only when the API service should apply embedded migrations before startup; prefer a pre-deploy migration command when available.
 
 ### Worker Service
 - `DATABASE_URL`: Full PostgreSQL connection string.
@@ -75,6 +74,6 @@ make db-migrate
 
 - **Health Checks Failing**: Ensure the environment variables (`DATABASE_URL`, `REDIS_URL`) are correct. The API and Worker are designed to fail loudly at startup if env vars are missing.
 - **Worker Not Processing Jobs**: Check the Worker service logs in the Coolify dashboard. Verify it has the correct `REDIS_URL` and `DATABASE_URL`.
-- **Database Migrations Issue**: Check the API Service deploy logs. The Refinery migration step runs in the pre-deploy script or API startup hook. If it fails, the new deployment is aborted.
+- **Database Migrations Issue**: Check the API Service deploy logs. The Refinery migration step runs during API startup. If it fails, the new deployment is aborted.
 - **Rollback**: If a deployment fails or introduces a critical bug, use the Coolify dashboard to rollback to the previous successful deployment. The rollback button is available in the deployment history of the application.
 - **Redeploy**: You can trigger a redeploy from the Coolify dashboard or by pushing a new commit to the repository, which Coolify can pick up automatically if Git hooks are configured.

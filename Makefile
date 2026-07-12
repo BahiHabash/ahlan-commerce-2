@@ -70,7 +70,7 @@ db-migrate:
 	$(ATLAS) migrate apply --env local
 
 db-migrate-prod:
-	DATABASE_URL="$(DATABASE_URL)" API_BIND_ADDR=0.0.0.0:3000 REDIS_URL=redis://localhost:6379 RUN_REFINERY_MIGRATIONS=true cargo run -p api --bin refinery-migrate
+	DATABASE_URL="$(DATABASE_URL)" API_BIND_ADDR=0.0.0.0:3000 REDIS_URL=redis://localhost:6379 cargo run -p api --bin refinery-migrate
 
 health:
 	curl -f http://localhost:3000/health

@@ -14,7 +14,7 @@ The `ahlan-commerce` project enforces a strict boundary for database access. Han
 It is crucial to understand the distinction between these two tools:
 
 - **Atlas** is responsible for **development database schema diffs and local migration history**. It ensures that your local database's tables, columns, and indexes transition correctly over time while you are changing schema.
-- **Refinery** is responsible for **production migration execution**. The API crate embeds `db/refinery_migrations/` and can apply those files through `cargo run -p api --bin refinery-migrate` or API startup when `RUN_REFINERY_MIGRATIONS=true`.
+- **Refinery** is responsible for **production migration execution**. The API crate embeds `db/refinery_migrations/` and applies those files on API startup. The same runner is also available through `cargo run -p api --bin refinery-migrate`.
 - **Cornucopia** is responsible for **typed Rust access to named SQL queries**. It takes the `.sql` files in `db/queries/` and generates Rust functions so you can safely call them without worrying about parameter or return type mismatches.
 
 **Atlas does not replace Cornucopia. Cornucopia does not replace Atlas. Refinery does not generate schema diffs; it only runs reviewed production migrations.**

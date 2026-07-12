@@ -1,4 +1,4 @@
-CREATE TABLE "public"."products" (
+CREATE TABLE IF NOT EXISTS "public"."products" (
   "id" text NOT NULL,
   "title" text NOT NULL,
   "handle" text NOT NULL,

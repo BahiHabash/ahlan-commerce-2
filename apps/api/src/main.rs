@@ -63,12 +63,6 @@ async fn main() {
     // Load config once at startup
     let config = Config::from_env();
 
-    if config.run_refinery_migrations {
-        migrations::run(&config.database_url)
-            .await
-            .expect("Failed to run Refinery migrations");
-    }
-
     // Initialize tracing subscriber with span close events enabled
     tracing_subscriber::fmt()
         .with_span_events(tracing_subscriber::fmt::format::FmtSpan::CLOSE)
@@ -77,6 +71,10 @@ async fn main() {
                 .unwrap_or_else(|_| "api=info,catalog=info,tower_http=info".into()),
         )
         .init();
+
+    migrations::run(&config.database_url)
+        .await
+        .expect("Failed to run Refinery migrations");
 
     // Initialize database pool (deadpool-postgres)
     let mut db_cfg = DbConfig::new();
@@ -264,7 +262,6 @@ mod integration_tests {
                 env: "test".to_string(),
                 database_url,
                 redis_url: redis_url.to_string(),
-                run_refinery_migrations: false,
             },
             catalog,
             schema,

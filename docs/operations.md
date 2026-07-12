@@ -19,7 +19,7 @@ Production uses Refinery from Rust, not Atlas. Keep `db/refinery_migrations/` al
 make db-migrate-prod
 ```
 
-The API can also run embedded Refinery migrations before startup when `RUN_REFINERY_MIGRATIONS=true`.
+The API always runs embedded Refinery migrations during startup before creating its application database pool.
 
 ### Managing Raw SQL Queries
 

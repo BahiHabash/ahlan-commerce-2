@@ -1,7 +1,36 @@
-# DAL Boundary
+# Data Access Layer (DAL)
 
-Atlas owns local development schema history and diffs from `db/schema/products.sql` into `db/migrations/`.
+The `ahlan-commerce` project enforces a strict boundary for database access. Handlers and domain orchestration logic should never execute raw SQL or directly call generated database bindings. Instead, they must call functions exposed by our public-safe Data Access Layer (the `catalog` package).
 
-Refinery owns production migration execution. The Rust binary embeds `db/refinery_migrations/` and applies those migrations when `RUN_REFINERY_MIGRATIONS=true`.
+## Where Things Live
 
-Cornucopia owns the SQL-first query contract. Named SQL files live under `db/queries/products/`; generated bindings are intentionally kept behind the DAL boundary. Handlers call `ProductStore`, not generated query functions or inline SQL.
+- **Schema & Development Migrations**: Atlas reads schema files from `db/schema/` and writes development migration history in `db/migrations/`.
+- **Production Migrations**: Refinery reads embedded SQL files from `db/refinery_migrations/` and applies them from Rust.
+- **SQL Query Files**: The actual SQL queries are maintained in `db/queries/products/`.
+- **DAL Code**: The public Rust interface wrapping persistence logic lives in `packages/catalog/`.
+
+## Atlas vs. Cornucopia
+
+It is crucial to understand the distinction between these two tools:
+
+- **Atlas** is responsible for **development database schema diffs and local migration history**. It ensures that your local database's tables, columns, and indexes transition correctly over time while you are changing schema.
+- **Refinery** is responsible for **production migration execution**. The API crate embeds `db/refinery_migrations/` and can apply those files through `cargo run -p api --bin refinery-migrate` or API startup when `RUN_REFINERY_MIGRATIONS=true`.
+- **Cornucopia** is responsible for **typed Rust access to named SQL queries**. It takes the `.sql` files in `db/queries/` and generates Rust functions so you can safely call them without worrying about parameter or return type mismatches.
+
+**Atlas does not replace Cornucopia. Cornucopia does not replace Atlas. Refinery does not generate schema diffs; it only runs reviewed production migrations.**
+
+### When to run Atlas
+Run Atlas when you need to change the structure of the database itself (e.g., adding a table, adding a column, modifying an index).
+
+### When to run Refinery
+Run Refinery in production or deployment automation after the migration SQL has been reviewed:
+
+```sh
+make db-migrate-prod
+```
+
+### When to run Cornucopia
+Run Cornucopia (via `make cornucopia-generate`) when you add, modify, or delete the `.sql` queries that your application uses to interact with the database.
+
+## Why Handlers Do Not Own Persistence
+Handlers are responsible for parsing HTTP requests and formatting HTTP responses. If they own persistence, the SQL logic becomes scattered, difficult to test, and tightly coupled to the web framework. By enforcing a DAL boundary, we keep the data access centralized, reviewable, and independently testable.

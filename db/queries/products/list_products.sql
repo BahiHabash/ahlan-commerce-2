@@ -1,14 +1,2 @@
---! list_products
-select
-  id,
-  title,
-  handle,
-  description,
-  price_cents,
-  inventory_quantity,
-  published,
-  published_at,
-  created_at,
-  updated_at
-from products
-order by created_at asc, id asc;
+--! list_products : (id, title, handle, price_cents, inventory_quantity, published, description?, published_at?, created_at, updated_at)
+SELECT * FROM products ORDER BY created_at DESC;

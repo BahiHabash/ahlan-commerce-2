@@ -1,5 +1,2 @@
-[queries]
-paths = ["db/queries"]
-
-[output]
-file = "src/generated/db.rs"
+queries = "db/queries"
+destination = "packages/db"

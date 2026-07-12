@@ -1,33 +1,92 @@
-PORT ?= 3000
+# Makefile for ahlan-commerce onboarding project
 
-.PHONY: run test fmt clippy health migrate-dev migrate-prod worker docs-api-check start
+# Detect OS to determine the correct Atlas executable path
+ATLAS ?= atlas
+ifeq ($(OS),Windows_NT)
+    ATLAS := ./atlas.exe
+endif
 
-run:
-	cargo run
+DB_HOST ?= localhost
+DB_PORT ?= 5432
+DB_USER ?= postgres
+DB_NAME ?= ahlan_commerce
+DATABASE_URL ?= postgres://$(DB_USER)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)
+PSQL ?= psql
+CREATEDB ?= createdb
+PG_ISREADY ?= pg_isready
+PG_CTL ?= pg_ctl
+PG_SERVICE ?= postgresql-x64-16
+PGDATA ?= E:/Set_up_Porgrams/PostgreSql/data
 
-test:
-	cargo test
-
-fmt:
-	cargo fmt --all
-
-clippy:
-	cargo clippy --all-targets -- -D warnings
-
-health:
-	curl -fsS http://127.0.0.1:$(PORT)/health
-
-migrate-dev:
-	atlas migrate apply --env local
-
-migrate-prod:
-	RUN_REFINERY_MIGRATIONS=true cargo run
-
-worker:
-	cargo run --bin ahlan-worker
-
-docs-api-check:
-	cargo test scenario_health_returns_ok
+.PHONY: start stop run-api run-admin test db-start db-create db-check db-migrate health cornucopia-generate redis-health docs-api docs-api-check
 
 start:
-	mprocs "cargo run" "docker compose up postgres redis"
+	mprocs -c mprocs.yaml
+
+stop:
+	@echo "Using local PostgreSQL. Stop it with your local PostgreSQL service manager if needed."
+
+run-api:
+	cargo run -p api
+
+run-admin:
+	cd apps/admin && npm run dev
+
+build-admin:
+	cd apps/admin && npm ci && npm run build
+
+start-admin:
+	cd apps/admin && npm start
+
+build-release:
+	cargo build --release -p api -p worker
+
+start-api:
+	./target/release/api
+
+start-worker:
+	./target/release/worker
+
+test:
+	cargo test -- --test-threads=1
+
+db-start:
+ifeq ($(OS),Windows_NT)
+	powershell -NoProfile -Command "$$service = Get-Service -Name '$(PG_SERVICE)' -ErrorAction SilentlyContinue; if ($$service -and $$service.Status -ne 'Running') { try { Start-Service -Name '$(PG_SERVICE)' -ErrorAction Stop } catch { Write-Warning $$_.Exception.Message } }"
+	$(PG_ISREADY) -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER) || $(PG_CTL) -D "$(PGDATA)" -l "$(PGDATA)/postgresql-local.log" start
+endif
+	$(PG_ISREADY) -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER)
+
+db-create:
+ifeq ($(OS),Windows_NT)
+	$(PSQL) -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER) -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$(DB_NAME)'" | findstr 1 >NUL || $(CREATEDB) -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER) $(DB_NAME)
+else
+	$(PSQL) -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER) -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '$(DB_NAME)'" | grep -q 1 || $(CREATEDB) -h $(DB_HOST) -p $(DB_PORT) -U $(DB_USER) $(DB_NAME)
+endif
+
+db-check: db-start db-create
+
+db-migrate:
+	$(ATLAS) migrate apply --env local
+
+db-migrate-prod:
+	DATABASE_URL="$(DATABASE_URL)" API_BIND_ADDR=0.0.0.0:3000 REDIS_URL=redis://localhost:6379 RUN_REFINERY_MIGRATIONS=true cargo run -p api --bin refinery-migrate
+
+health:
+	curl -f http://localhost:3000/health
+
+redis-health:
+	redis-cli ping
+
+docs-api:
+	cargo run -p api --bin docs-gen
+
+docs-api-check: docs-api
+	git diff --exit-code docs/generated/
+
+cornucopia-generate:
+ifeq ($(OS),Windows_NT)
+	powershell -NoProfile -Command "$$root = (Get-Location).Path; $$tmp = \"$$root\target\tmp\"; New-Item -ItemType Directory -Force -Path $$tmp | Out-Null; $$env:TEMP = $$tmp; $$env:TMP = $$tmp; cornucopia live '$(DATABASE_URL)' -q 'db/queries' -d 'packages/db' --async true"
+else
+	cornucopia live "$(DATABASE_URL)" -q "db/queries" -d "packages/db" --async true
+endif

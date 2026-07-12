@@ -1,8 +1,13 @@
 env "local" {
-  src = "file://db/schema"
-  url = getenv("DATABASE_URL")
-  dev = getenv("ATLAS_DEV_DATABASE_URL")
+  src = ["file://db/schema/products.sql", "file://db/schema/import_jobs.sql"]
+  url = "postgres://postgres@localhost:5432/ahlan_commerce?sslmode=disable"
+  dev = "postgres://postgres@localhost:5432/ahlan_commerce_dev?sslmode=disable"
   migration {
     dir = "file://db/migrations"
+  }
+  format {
+    migrate {
+      diff = "{{ sql . \"  \" }}"
+    }
   }
 }

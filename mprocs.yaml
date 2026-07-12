@@ -1,0 +1,11 @@
+procs:
+  postgres:
+    shell: "make db-check"
+  redis:
+    shell: "redis-server --loglevel notice"
+  api:
+    shell: "make run-api"
+  admin:
+    shell: "make run-admin"
+  worker:
+    shell: "cargo run -p worker"

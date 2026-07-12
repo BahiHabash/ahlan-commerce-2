@@ -1,15 +1,2 @@
---! list_published_products
-select
-  id,
-  title,
-  handle,
-  description,
-  price_cents,
-  inventory_quantity,
-  published,
-  published_at,
-  created_at,
-  updated_at
-from products
-where published = true
-order by published_at desc nulls last, created_at asc, id asc;
+--! list_published_products : (id, title, handle, price_cents, inventory_quantity, published, description?, published_at?, created_at, updated_at)
+SELECT * FROM products WHERE published = true ORDER BY created_at DESC;

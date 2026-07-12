@@ -1,2 +1,18 @@
 /target
+notes.*
+.env
+.env.*
+!.env.example
+
+# Atlas executable
+atlas
+atlas.exe
+
+# IDEs and OS files
+.vscode/
+.idea/
+.tools/
+Thumbs.db
+desktop.ini
 .DS_Store
+*.log
